@@ -1,36 +1,38 @@
 const fs = require('fs')
 
+// let digitNamesArr = [{'zero': 0}, {'one': 1}, {'two': 2}, {'three': 3}, {'four': 4}, {'five': 5}, {'six': 6}, {'seven': 7}, {'eight': 8}, {'nine': 9}]
 let digitNamesArr = ['zero', 'one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine']
-// fs.readFile('input.txt', 'utf-8', (err, fullText) => {
-//     let doubleDigitArr = [];
-//     if (err) throw err;
-//     const textArray = fullText.split('\n')
-//     textArray.forEach(
-//         string => {
-//             doubleDigitArr.push(sumOfFirstAndLast(string))
-//         }
-//     )
-//     const reducedArr = doubleDigitArr.reduce((acc, cur) => parseInt(acc) + parseInt(cur), 0)
-//     console.log(reducedArr)
-// })
+fs.readFile('input.txt', 'utf-8', (err, fullText) => {
+    let doubleDigitArr = [];
+    if (err) throw err;
+    const textArray = fullText.split('\n')
+    textArray.forEach(
+        string => {
+            doubleDigitArr.push(sumOfFirstAndLast(string))
+        }
+    )
+    const reducedArr = doubleDigitArr.reduce((acc, cur) => parseInt(acc) + parseInt(cur), 0)
+    console.log(reducedArr)
+})
 
 sumOfFirstAndLast = (string) => {
     let firstInt;
     let lastInt;
-    let foundDigitsFromString = integerFromStringName(string)
-    for(let i = 0; i < string.length; i++) {
+    const foundDigitsFromString = integerFromStringName(string)
+    // console.log('right before the loop: ', foundDigitsFromString)
+    for(let i = 0; i < foundDigitsFromString.length; i++) {
         // If the first integer is not an integer yet
         if(!Number.isInteger(parseInt(firstInt))){
             // If we find a number in the string save it as first Int
-            if(Number.isInteger(parseInt(string[i])) || string[i]){
-                firstInt = string[i]
+            if(Number.isInteger(parseInt(foundDigitsFromString[i])) || foundDigitsFromString[i]){
+                firstInt = foundDigitsFromString[i]
             }
         }
         // If the first integer is already saved as an integer 
         else {
             //we save the next integer as last integer, this is fine if it gets overwritten a few times since we only care for the last integer
-            if(Number.isInteger(parseInt(string[i]))){
-                lastInt = string[i]
+            if(Number.isInteger(parseInt(foundDigitsFromString[i]))){
+                lastInt = foundDigitsFromString[i]
             }
         }
     }
@@ -38,28 +40,32 @@ sumOfFirstAndLast = (string) => {
     if(lastInt === undefined){
         lastInt = firstInt
     }
-    
+   console.log(foundDigitsFromString, string, [firstInt + lastInt]) 
     return [firstInt + lastInt]
 }
 
-integerFromStringName = (string) => {
-    let firstStringInt
-    let lastStringInt
-    let test = digitNamesArr.forEach(
-        integerString => {
-            subStrIndex = string.search(integerString)
-            if( subStrIndex !== -1){
-                if(firstStringInt === undefined){
-                    firstStringInt = integerString
-                    let newTestString = string.replace(integerString, '')
-                    console.log("NEW TEST STRING: ", newTestString)
+// Gotta make this recursive somehow
+integerFromStringName = (stringToCheck) => {
+    let updatedString = stringToCheck
+    digitNamesArr.forEach(
+        (integerString, integerNumber) => {
+            subStrIndex = updatedString.search(integerString)
+            if(subStrIndex !== -1){
+                    updatedString = updatedString.replace(integerString, integerNumber)
+                    // console.log("NEW STRING: ", updatedString)
                 }
-                console.log(integerString, subStrIndex, integerString.length)
-                console.log(string.match(integerString))
             }
-        }
     )
-    console.log(test)
+    let hasDigitNames = digitNamesArr.find(digitName => updatedString.includes(digitName))
+    // console.log('after: ', updatedString)
+    if(hasDigitNames){ 
+        // console.log('recursion cond: ', updatedString)
+        return integerFromStringName(updatedString) 
+    }
+    else {
+        // console.log('no more matches, should return the string: ', updatedString)
+        return updatedString
+    }
 }
 
-sumOfFirstAndLast("r27threeqzxone27onegsponemgncgth")
+// sumOfFirstAndLast("eightnineseven21seven")
