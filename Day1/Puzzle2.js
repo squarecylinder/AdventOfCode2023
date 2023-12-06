@@ -1,8 +1,8 @@
 const fs = require('fs')
 
 // let digitNamesArr = [{'zero': 0}, {'one': 1}, {'two': 2}, {'three': 3}, {'four': 4}, {'five': 5}, {'six': 6}, {'seven': 7}, {'eight': 8}, {'nine': 9}]
-let digitNamesArr = ['zero', 'one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine']
-fs.readFile('input.txt', 'utf-8', (err, fullText) => {
+const digitNamesArr = ['zero', 'one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine']
+fs.readFile('example.txt', 'utf-8', (err, fullText) => {
     let doubleDigitArr = [];
     if (err) throw err;
     const textArray = fullText.split('\n')
@@ -11,7 +11,10 @@ fs.readFile('input.txt', 'utf-8', (err, fullText) => {
             doubleDigitArr.push(sumOfFirstAndLast(string))
         }
     )
-    const reducedArr = doubleDigitArr.reduce((acc, cur) => parseInt(acc) + parseInt(cur), 0)
+    const reducedArr = doubleDigitArr.reduce((acc, cur) => {
+        console.log("acc: ", acc, "cur: ", cur)
+        return acc + parseInt(cur)
+    }, 0)
     console.log(reducedArr)
 })
 
@@ -40,30 +43,28 @@ sumOfFirstAndLast = (string) => {
     if(lastInt === undefined){
         lastInt = firstInt
     }
-   console.log(foundDigitsFromString, string, [firstInt + lastInt]) 
+   console.log(string, foundDigitsFromString, [firstInt + lastInt]) 
     return [firstInt + lastInt]
 }
-
-// Gotta make this recursive somehow
+// Currently cant handle overlapping digits IE eightwothree gives us eigh23 and not 823.
 integerFromStringName = (stringToCheck) => {
     let updatedString = stringToCheck
+    const arrayOfIntegers = []
     digitNamesArr.forEach(
         (integerString, integerNumber) => {
-            subStrIndex = updatedString.search(integerString)
+            subStrIndex = stringToCheck.search(integerString)
             if(subStrIndex !== -1){
-                    updatedString = updatedString.replace(integerString, integerNumber)
-                    // console.log("NEW STRING: ", updatedString)
+                    updatedString = stringToCheck.replace(integerString, integerNumber)
+                    arrayOfIntegers.push(integerNumber)
                 }
             }
     )
+    console.log('arrayOfIntegers: ', arrayOfIntegers)
     let hasDigitNames = digitNamesArr.find(digitName => updatedString.includes(digitName))
-    // console.log('after: ', updatedString)
     if(hasDigitNames){ 
-        // console.log('recursion cond: ', updatedString)
         return integerFromStringName(updatedString) 
     }
     else {
-        // console.log('no more matches, should return the string: ', updatedString)
         return updatedString
     }
 }
