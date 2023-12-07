@@ -1,6 +1,5 @@
 const fs = require('fs')
 
-// let digitNamesArr = [{'zero': 0}, {'one': 1}, {'two': 2}, {'three': 3}, {'four': 4}, {'five': 5}, {'six': 6}, {'seven': 7}, {'eight': 8}, {'nine': 9}]
 const digitsArr = ['one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine', '1', '2', '3', '4', '5', '6', '7', '8', '9']
 const digitToIntegerMap = {
     'one': '1',
@@ -49,9 +48,7 @@ integerFromStringName = (stringToCheck) => {
         .sort((a, b) => a.index - b.index);
 
     // Determine the first and last digits based on their occurrences
-    const firstAndLastMatches = matchesWithIndices.length >= 1
-        ? [matchesWithIndices[0].digit, matchesWithIndices[matchesWithIndices.length - 1].digit]
-        : [];
+    const firstAndLastMatches = [matchesWithIndices[0].digit, matchesWithIndices[matchesWithIndices.length - 1].digit]
 
     // Map the first and last digits to their integer counterparts (or use the digit itself if no mapping is available)
     const firstAndLastMatchesWithIntegers = firstAndLastMatches.map(digit => (digitToIntegerMap[digit] ?? digit));
