@@ -1,72 +1,61 @@
 const fs = require('fs')
 
 // let digitNamesArr = [{'zero': 0}, {'one': 1}, {'two': 2}, {'three': 3}, {'four': 4}, {'five': 5}, {'six': 6}, {'seven': 7}, {'eight': 8}, {'nine': 9}]
-const digitNamesArr = ['zero', 'one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine']
-fs.readFile('example.txt', 'utf-8', (err, fullText) => {
+const digitsArr = ['one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine', '1', '2', '3', '4', '5', '6', '7', '8', '9']
+const digitToIntegerMap = {
+    'one': '1',
+    'two': '2',
+    'three': '3',
+    'four': '4',
+    'five': '5',
+    'six': '6',
+    'seven': '7',
+    'eight': '8',
+    'nine': '9',
+};
+
+fs.readFile('input.txt', 'utf-8', (err, fullText) => {
     let doubleDigitArr = [];
     if (err) throw err;
     const textArray = fullText.split('\n')
     textArray.forEach(
         string => {
-            doubleDigitArr.push(sumOfFirstAndLast(string))
+            doubleDigitArr.push(integerFromStringName(string))
         }
     )
     const reducedArr = doubleDigitArr.reduce((acc, cur) => {
-        console.log("acc: ", acc, "cur: ", cur)
         return acc + parseInt(cur)
     }, 0)
     console.log(reducedArr)
 })
 
-sumOfFirstAndLast = (string) => {
-    let firstInt;
-    let lastInt;
-    const foundDigitsFromString = integerFromStringName(string)
-    // console.log('right before the loop: ', foundDigitsFromString)
-    for(let i = 0; i < foundDigitsFromString.length; i++) {
-        // If the first integer is not an integer yet
-        if(!Number.isInteger(parseInt(firstInt))){
-            // If we find a number in the string save it as first Int
-            if(Number.isInteger(parseInt(foundDigitsFromString[i])) || foundDigitsFromString[i]){
-                firstInt = foundDigitsFromString[i]
-            }
-        }
-        // If the first integer is already saved as an integer 
-        else {
-            //we save the next integer as last integer, this is fine if it gets overwritten a few times since we only care for the last integer
-            if(Number.isInteger(parseInt(foundDigitsFromString[i]))){
-                lastInt = foundDigitsFromString[i]
-            }
-        }
-    }
-    // if the last integer is undefined(IE. there were no more integers after the first one, set the last integer to also be the first integer)
-    if(lastInt === undefined){
-        lastInt = firstInt
-    }
-   console.log(string, foundDigitsFromString, [firstInt + lastInt]) 
-    return [firstInt + lastInt]
-}
-// Currently cant handle overlapping digits IE eightwothree gives us eigh23 and not 823.
 integerFromStringName = (stringToCheck) => {
-    let updatedString = stringToCheck
-    const arrayOfIntegers = []
-    digitNamesArr.forEach(
-        (integerString, integerNumber) => {
-            subStrIndex = stringToCheck.search(integerString)
-            if(subStrIndex !== -1){
-                    updatedString = stringToCheck.replace(integerString, integerNumber)
-                    arrayOfIntegers.push(integerNumber)
-                }
+    // Filter the digitsArr to include only the digits present in the stringToCheck
+    const matchesWithIndices = digitsArr
+        .filter(digit => stringToCheck.includes(digit))
+        .map(digit => {
+            let index = -1;
+            const indices = [];
+            // Find all occurrences of the digit in the string and store their indices
+            while ((index = stringToCheck.indexOf(digit, index + 1)) !== -1) {
+                indices.push(index);
             }
-    )
-    console.log('arrayOfIntegers: ', arrayOfIntegers)
-    let hasDigitNames = digitNamesArr.find(digitName => updatedString.includes(digitName))
-    if(hasDigitNames){ 
-        return integerFromStringName(updatedString) 
-    }
-    else {
-        return updatedString
-    }
-}
+            // Map each index to an object containing the digit and the index
+            return indices.map(idx => ({ digit, index: idx }));
+        })
+        // Flatten the array of arrays into a single array of objects
+        .flat()
+        // Sort the array of objects based on the index property
+        .sort((a, b) => a.index - b.index);
 
-// sumOfFirstAndLast("eightnineseven21seven")
+    // Determine the first and last digits based on their occurrences
+    const firstAndLastMatches = matchesWithIndices.length >= 1
+        ? [matchesWithIndices[0].digit, matchesWithIndices[matchesWithIndices.length - 1].digit]
+        : [];
+
+    // Map the first and last digits to their integer counterparts (or use the digit itself if no mapping is available)
+    const firstAndLastMatchesWithIntegers = firstAndLastMatches.map(digit => (digitToIntegerMap[digit] ?? digit));
+
+    // Join the mapped digits into a single string and return
+    return firstAndLastMatchesWithIntegers.join('');
+}
