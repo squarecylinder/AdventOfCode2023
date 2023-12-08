@@ -18,16 +18,15 @@ const checkDiceCount = (fullGame) => {
     const highestCountPerColor = gameSets.map(setOfDice => {
         singleSetView = setOfDice.trim().split(',')
         return singleSetView.map(singleDiceColor => {
-            singleDiceColor = removeWhiteSpace(singleDiceColor.split(' '))
+            singleDiceColor = singleDiceColor.trim().split(' ')
             return { color: singleDiceColor[1], count: singleDiceColor[0] }
         })
     })
         .flat()
-        .sort((a, b) => b.count - a.count)
         .reduce((result, item) => {
             const color = item.color;
             const count = parseInt(item.count);
-
+            console.log(result, item);
             // Check if the color is not in the result array or if it is but with a lower count
             if (!result.find(i => i.color === color) || result.find(i => i.color === color && parseInt(i.count) < count)) {
                 // Remove any previous occurrences of the same color
@@ -35,7 +34,6 @@ const checkDiceCount = (fullGame) => {
                 // Add the current item to the result array
                 result.push(item);
             }
-
             return result;
         }, []);
     const productOfCounts = highestCountPerColor.reduce((product, item) => {
@@ -44,7 +42,4 @@ const checkDiceCount = (fullGame) => {
     }, 1);
 
     return productOfCounts
-}
-const removeWhiteSpace = (array) => {
-    return array.filter(element => element !== '')
 }
